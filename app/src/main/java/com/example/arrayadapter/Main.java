@@ -3,6 +3,7 @@ package com.example.arrayadapter;
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -41,10 +42,22 @@ public class Main extends AppCompatActivity {
     }
 
     else if ((Name == null || Name.trim().equals(""))
-          || (ID == null || ID.trim().equals("")
-          || (Address == null || Address.trim().equals("")) {
+          || (ID == null || ID.trim().equals(""))
+          || (Address == null || Address.trim().equals(""))) {
 
      displayToast("Data yang dimasukkan tidak boleh kosong");
+    }
+
+    else {
+     addArray.add(Name);
+     ArrayAdapter<String> arrAdapter = new ArrayAdapter<String>(Main.this, android.R.layout.simple_list_item_1, addArray);
+     lvData.setAdapter(arrAdapter);
+
+     ((EditText) findViewById(R.id.etName)).getText().clear();
+     ((EditText) findViewById(R.id.etID)).getText().clear();
+     ((EditText) findViewById(R.id.etAddress)).getText().clear();
+
+     displayToast("Berhasil menambahkan data");
     }
    }
   });
