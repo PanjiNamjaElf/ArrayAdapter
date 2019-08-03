@@ -2,9 +2,15 @@ package com.example.arrayadapter;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -29,16 +35,21 @@ public class Main extends AppCompatActivity {
  private SimpleDateFormat dateFormatter;
  private int RadioID;
  private long BackPressedTime;
+ private String[] dbList;
+ protected Cursor cursor;
+
 
  EditText etName, etID;
  RadioGroup rgGender;
  RadioButton rbGender;
  TextView tvBirthdate;
  Button bDatePicker, bSave;
- Spinner spProgram;
  ArrayList<Person> pList = new ArrayList<>();
+ Spinner spProgram;
  ListView lvData;
  Toast msgToast;
+ SQLiteHelper DB;
+ SQLiteDatabase sqlDB;
 
  @Override
  protected void onCreate(Bundle savedInstanceState) {
@@ -56,15 +67,7 @@ public class Main extends AppCompatActivity {
 
   dateFormatter = new SimpleDateFormat("dd-MM-yyyy", Locale.US);
 
-  // Create the Person objects
-  // Person john = new Person("John","12-20-1998","Male");
-
-  // Add the person objects to an ArrayList
-  // ArrayList<Person> peopleList = new ArrayList<>();
-  // peopleList.add(john);
-
-  // PersonListAdapter adapter = new PersonListAdapter(this, R.layout.adapter_view_layout, peopleList);
-  // lvData.setAdapter(adapter);
+  DB = new SQLiteHelper(this);
 
   bDatePicker.setOnClickListener(new View.OnClickListener() {
    public void onClick(View view) {
@@ -77,6 +80,8 @@ public class Main extends AppCompatActivity {
     saveData();
    }
   });
+
+  refreshDB();
  }
 
  public void displayDatePicker() {
@@ -121,12 +126,15 @@ public class Main extends AppCompatActivity {
   }
 
   else {
-   Person pData = new Person(Name, Id, Gender, Birthdate, Program);
+   // Person pData = new Person(Name, Id, Gender, Birthdate, Program);
 
-   pList.add(pData);
+   // pList.add(pData);
 
-   PersonListAdapter pAdapter = new PersonListAdapter(this, R.layout.adapter_view_layout, pList);
-   lvData.setAdapter(pAdapter);
+   // PersonListAdapter pAdapter = new PersonListAdapter(this, R.layout.adapter_view_layout, pList);
+   // lvData.setAdapter(pAdapter);
+
+   sqlDB = DB.getWritableDatabase();
+   sqlDB.execSQL("INSERT INTO " + DB.DATABASE_TABLE + "(name, id, gender, birthdate, program) VALUES ('" + Name + "', '" + Id + "', '" + Gender + "', '" + Birthdate + "', '" + Program + "');");
 
    ((EditText) findViewById(R.id.etName)).getText().clear();
    ((EditText) findViewById(R.id.etID)).getText().clear();
@@ -136,7 +144,48 @@ public class Main extends AppCompatActivity {
    spProgram.setSelection(0);
 
    displayToast("Berhasil menambahkan data");
+
+   refreshDB();
   }
+ }
+
+ public void refreshDB() {
+  String Name, Id, Gender, Birthdate, Program;
+
+  sqlDB = DB.getReadableDatabase();
+
+  cursor = sqlDB.rawQuery("SELECT * FROM " + DB.DATABASE_TABLE, null);
+
+  pList.clear();
+
+  if (cursor.moveToFirst()) {
+   while (!cursor.isAfterLast()) {
+    // String name = cursor.getString(cursor.getColumnIndex(countyname));
+
+    Name      = cursor.getString(0).toString();
+    Id        = cursor.getString(1).toString();
+    Gender    = cursor.getString(2).toString();
+    Birthdate = cursor.getString(3).toString();
+    Program   = cursor.getString(4).toString();
+
+    Person pData = new Person(Name, Id, Gender, Birthdate, Program);
+
+    pList.add(pData);
+
+    cursor.moveToNext();
+   }
+  }
+
+  // cursor.moveToFirst();
+
+  /* Name      = cursor.getString(0).toString();
+  Id        = cursor.getString(1).toString();
+  Gender    = cursor.getString(2).toString();
+  Birthdate = cursor.getString(3).toString();
+  Program   = cursor.getString(4).toString(); */
+
+  PersonListAdapter pAdapter = new PersonListAdapter(this, R.layout.adapter_view_layout, pList);
+  lvData.setAdapter(pAdapter);
  }
 
  public void onBackPressed() {
