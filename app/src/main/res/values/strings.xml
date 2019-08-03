@@ -1,3 +1,15 @@
 <resources>
-    <string name="app_name">Array Adapter</string>
+ <string name="app_name">Array Adapter</string>
+
+ <string-array name="program_list">
+  <item>Akuntasi</item>
+  <item>Cyber Security</item>
+  <item>Desain Komunikasi Visual</item>
+  <item>Kedokteran</item>
+  <item>Manajemen Bisnis</item>
+  <item>Teknik Informatika</item>
+  <item>Teknik Industri</item>
+  <item>Teknologi Pangan</item>
+  <item>Teknik Sipil</item>
+ </string-array>
 </resources>
